@@ -275,7 +275,6 @@ class SlackBot extends Adapter
       data.message.envelope.room
     else data.message.room
 
-    console.log "channel: #{ JSON.stringify data }"
     channel = @client.getChannelGroupOrDMByName channelName
     return unless channel
 
@@ -286,7 +285,6 @@ class SlackBot extends Adapter
     msg.text = data.text
 
     if data.icon_url || data.icon_emoji || data.username && data.username != @robot.name
-      console.log "setting custom icon etc?"
       msg.as_user = false
       msg.username = data.username || @robot.name
       if data.icon_url?
