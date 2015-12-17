@@ -223,6 +223,12 @@ class SlackBot extends Adapter
       return
 
     for msg in messages
+      if typeof msg == "object"
+        # XXX: we wanna massage msg into a fitting data for customMessage
+        msg.channel = envelope.room
+        @customMessage msg
+        continue # next msg please!
+
       continue if msg.length < SlackBot.MIN_MESSAGE_LENGTH
 
       # Replace @username with <@UXXXXX> for mentioning users and channels
@@ -277,6 +283,10 @@ class SlackBot extends Adapter
 
     for msg in messages
       # TODO: Don't prefix username if replying in DM
+      if typeof msg == "object"
+        # XXX: We do not prepend the user name on a complex message
+        @send envelope, msg
+        continue # Next reply please!
       @send envelope, "<@#{envelope.user.id}>: #{msg}"
 
   topic: (envelope, strings...) ->
@@ -301,9 +311,9 @@ class SlackBot extends Adapter
 
     msg.text = data.text
 
-    if data.username && data.username != @robot.name
+    if data.icon_url || data.icon_emoji || data.username && data.username != @robot.name
       msg.as_user = false
-      msg.username = data.username
+      msg.username = data.username || @robot.name
       if data.icon_url?
         msg.icon_url = data.icon_url
       else if data.icon_emoji?
